@@ -193,9 +193,13 @@
      (na Urbanist a frase mede ~15,2× o tamanho da fonte; 6.3cqi deixa folga) */
   .btn .ph{display:block;white-space:nowrap;font-size:min(13.9px, 6.3cqi)}   /* na Urbanist a frase mede ~15,2× a fonte */
   .btn .wa{width:18px;height:18px}
+  /* Pedro e Kelvyn: mesma largura e posição dos botões da Brena e da Mara
+     (margem do card -2px/-4px + recuo interno 20px → 18px à esquerda, 16px à direita) */
+  section.block .btns{padding:0 16px 0 18px}
   @media (max-width:400px){
     .btn .wa{display:none}             /* libera espaço p/ a frase */
     .feature{padding-left:14px;padding-right:14px}
+    section.block .btns{padding:0 10px 0 12px}
   }
   /* foto do vendedor: recorte quadrado com rosto e pescoço, só arredondada (sem filtro) */
   .avatar{
