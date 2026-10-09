@@ -111,7 +111,7 @@
   }
   h1 .mark{
     display:inline-block;
-    background:var(--peri-neon);
+    background:#9CAEF2;
     color:var(--ink);
     padding:2px .16em 0;
   }
@@ -123,7 +123,7 @@
   }
   .rule{
     width:48px;height:3px;margin:16px auto 0;border:0;
-    background:linear-gradient(90deg,var(--gold-neon) 0 50%,var(--peri-neon) 50% 100%);
+    background:#000000;
   }
 
   /* destaque */
@@ -150,7 +150,7 @@
     white-space:nowrap;
     color:#FFFFFF;
   }
-  .feature h2 span{color:var(--peri-neon)}
+  .feature h2 span{color:#9CAEF2}
   .feature h2::after{content:"";display:block;width:36px;height:3px;margin:6px auto 0;background:#FFFFFF}   /* traço igual ao das outras seções, em branco sobre o card escuro */
   .feature .feature-desc{margin:-6px 0 14px;font-size:min(15px, 3.6cqi);line-height:1.4;color:#FFFFFF;white-space:nowrap}   /* branco sobre #0B0B12: 19,61 */
 
@@ -206,7 +206,7 @@
   .btn:active{transform:translateY(1px)}
   .btn:focus-visible{outline:3px solid var(--peri-text);outline-offset:3px}
 
-  .btn-neon{background:var(--peri-neon);color:var(--ink)}
+  .btn-neon{background:#9CAEF2;color:var(--ink)}
   .btn-neon:hover{box-shadow:0 0 0 3px #FFFFFF inset}
   .feature .btn:focus-visible{outline-color:var(--peri-neon)}
 
@@ -263,7 +263,7 @@
   <!-- DESTAQUE -->
   <section class="feature" aria-labelledby="t-dtf">
     <h2 id="t-dtf">IMPRESSÃO <span>DTF TÊXTIL</span></h2>
-    <p class="feature-desc">Sua estampa pronta para aplicar</p>
+    <p class="feature-desc">Sua estampa pronta pra aplicar em qualquer tecido</p>
     <div class="btns">
       <a class="btn btn-neon" id="brena-faca-seu-orcamento-no-whatsapp"
          href="https://api.whatsapp.com/send/?phone=5585998019368" target="_blank" rel="noopener">
@@ -355,26 +355,37 @@
   card.insertBefore(cv, card.firstChild);
   var ctx=cv.getContext('2d'); if(!ctx) return;
   var A=[243,100,83], B=[37,100,63];          /* lavanda #ACA8FF e ouro #FFB742 em HSL */
-  var S=7.4, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.31, GROW=1.0;   /* ritmo: 15% mais lento que 1.54 */
-  /* manchas: [x, y, raioX, raioY, força, amplitudeX, amplitudeY, velocidade, fase] */
-  var blobA=[[.02,.04,.30,.14,1.1,.12,.07,.21,0],[.03,.96,.24,.13,1.05,.14,.06,.17,2],
-             [.45,0,.09,.08,.85,.18,.05,.26,4],[0,.5,.06,.18,.75,.04,.18,.19,1]];
-  var blobB=[[.98,.03,.25,.13,1.1,.14,.07,.19,1.3],[1,.6,.06,.18,.9,.04,.2,.23,3],
-             [.3,0,.08,.07,.75,.15,.05,.29,5],[.82,.99,.17,.085,.9,.14,.05,.2,2.2],[.7,.08,.045,.06,.65,.1,.06,.31,.7]];
+  var S=6.2, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.31, GROW=0.9;   /* ritmo: 15% mais lento que 1.54 */
+  /* a fumaça aparece em duplas, sempre em lados opostos; quando uma dupla começa
+     a sumir, a próxima surge em outra posição. Cada dupla: [[x,y],[x,y]] */
+  var PAIRS=[[[.05,.06],[.95,.94]],[[.95,.06],[.05,.94]],[[.5,.02],[.5,.98]],[[.02,.5],[.98,.5]]];
+  var DUR=7, STEP=DUR*.6;                     /* duração de cada dupla e intervalo até a próxima */
   var pts=[], W=0, H=0, dpr=1;
 
-  function field(b,x,y,t){
+  /* duplas ativas no instante t: [x, y, força 0–1, cor (0 lavanda, 1 ouro), nº da dupla, progresso] */
+  function active(t){
+    t+=DUR*.5;                                /* começa com uma dupla já visível */
+    var list=[], k0=Math.floor(t/STEP);
+    for(var k=Math.max(0,k0-2);k<=k0;k++){
+      var p=(t-k*STEP)/DUR; if(p<=0||p>=1) continue;
+      var e=Math.pow(Math.sin(Math.PI*p),2), P=PAIRS[k%PAIRS.length], c=k%2;
+      list.push([P[0][0],P[0][1],e,c,k,p],[P[1][0],P[1][1],e,1-c,k,p]);
+    }
+    return list;
+  }
+
+  function field(act,col,x,y,t){
     /* turbulência em duas escalas: as nuvens se enrolam como fumaça */
     var ox=x, oy=y;
     x+=.085*Math.sin(oy*5.5+t*.45)+.04*Math.sin(oy*12-t*.7+ox*3)+.02*Math.sin(oy*21+t*1.1);
     y+=.07*Math.sin(ox*4.5-t*.35)+.035*Math.sin(ox*10+t*.6)+.018*Math.sin(ox*19-t*.9)+.035*Math.sin(t*.25); /* leve subida e descida */
     var f=0;
-    for(var i=0;i<b.length;i++){var o=b[i],
-      cx=o[0]+o[5]*Math.sin(t*o[7]+o[8]), cy=o[1]+o[6]*Math.cos(t*o[7]*.8+o[8]),
-      dx=(x-cx)/(o[2]*GROW), dy=(y-cy)/(o[3]*GROW); f+=o[4]*Math.exp(-(dx*dx+dy*dy));}   /* GROW: manchas maiores */
+    for(var i=0;i<act.length;i++){var o=act[i]; if(o[3]!==col) continue;
+      var cx=o[0]+.04*Math.sin(t*.3+o[4]), cy=o[1]+.03*Math.cos(t*.25+o[4]),
+      dx=(x-cx)/(.30*GROW), dy=(y-cy)/(.16*GROW); f+=1.1*o[2]*Math.exp(-(dx*dx+dy*dy));}   /* GROW: tamanho das manchas */
     /* fios: faixas mais densas e mais ralas dentro da nuvem */
     var wisp=.72+.28*Math.sin(ox*9+oy*14-t*.9)*Math.sin(ox*5-oy*7+t*.5);
-    return f*wisp*1.16;
+    return f*wisp*1.18;
   }
   function color(base,x,y,t){                 /* iridescência: matiz ±36°, luz ±8% */
     var w=Math.sin(x*.045+y*.028+t*.5)*.65+Math.sin(x*.013-y*.051+1.7-t*.3)*.35;
@@ -382,7 +393,7 @@
   }
   function alpha(x,y,f,t){                    /* fumaça: núcleo mais visível, bordas que se desfazem */
     var w=.5+.5*Math.sin(x*.021-y*.034+.8+t*.35)*Math.cos(x*.009+y*.017-t*.2);
-    return Math.max(.45,Math.min(.95,.45+.5*Math.min(f,1)*(.65+.35*w)));   /* força entre 45% e 95% */
+    return Math.max(.55,Math.min(.95,.55+.4*Math.min(f,1)*(.65+.35*w)));   /* força entre 55% e 95% */
   }
 
   function layout(){
@@ -406,23 +417,17 @@
       pts.push(x,y,fade(x,y));
     }
   }
-  /* jogo de luzes: clarões rápidos que surgem em qualquer ponto livre do card e somem */
-  var flashes=[], nextFlash=.3, fs=11;
-  function rf(){fs=(fs*16807)%2147483647;return (fs-1)/2147483646;}
-  function updFlashes(t){
-    if(t<nextFlash-5){flashes=[];nextFlash=t+.3;}
-    while(t>=nextFlash){ flashes.push([rf(),rf(),.12+rf()*.12,nextFlash,2.4+rf()*1.4,rf()<.5?0:1]); nextFlash+=1+rf()*1.2; }
-    flashes=flashes.filter(function(f){return t<f[3]+f[4];});
-  }
+  /* jogo de luzes: um clarão em cada ponto da dupla ativa, no auge dela */
   function frame(t){
-    updFlashes(t);
+    var act=active(t);
     ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
     for(var k=0;k<pts.length;k+=3){
       var x=pts[k], y=pts[k+1], nx=x/W, ny=y/H;
-      var fa=field(blobA,nx,ny,t), fb=field(blobB,nx,ny,t), f=Math.max(fa,fb), g=0, gi=0;
-      for(var q=0;q<flashes.length;q++){ var F=flashes[q], p=(t-F[3])/F[4], env=.85*Math.pow(Math.sin(Math.PI*p),2),
-        ddx=(x-F[0]*W)/(F[2]*W), ddy=(y-F[1]*H)/(F[2]*W), e=env*Math.exp(-(ddx*ddx+ddy*ddy)*2);
-        if(e>g){g=e;gi=F[5];} }
+      var fa=field(act,0,nx,ny,t), fb=field(act,1,nx,ny,t), f=Math.max(fa,fb), g=0, gi=0;
+      for(var q=0;q<act.length;q++){ var F=act[q], fp=(F[5]-.3)/.4; if(fp<=0||fp>=1) continue;
+        var env=.9*Math.pow(Math.sin(Math.PI*fp),2),
+        ddx=(x-(F[0]+(.5-F[0])*.25)*W)/(.18*W), ddy=(y-(F[1]+(.5-F[1])*.25)*H)/(.18*W), e=env*Math.exp(-(ddx*ddx+ddy*ddy)*2);
+        if(e>g){g=e;gi=F[3];} }
 
       var lit=g>f; if(lit) f=g;
       var r=RMAX*Math.sqrt(Math.min(f,1));
