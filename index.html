@@ -35,6 +35,9 @@
     --display:"Anton","Impact","Haettenschweiler","Arial Narrow Bold",sans-serif;
     --body:"Urbanist","Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif;
   }
+  /* Telas de cores ampliadas (iPhone, Androids recentes) saturam o lavanda; nelas usamos
+     um tom um pouco mais claro e menos saturado, que fica igual ao que se vê no computador. */
+  @media (color-gamut: p3){ :root{ --peri-neon:#BBB8F9; } }   /* contraste com o preto: 10,59 */
   *{box-sizing:border-box;margin:0;padding:0}
   html{background:var(--bg)}
   body{
