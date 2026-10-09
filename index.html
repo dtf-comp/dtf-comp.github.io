@@ -59,6 +59,7 @@
     position:absolute;z-index:0;pointer-events:none;
     width:calc(max(0px, (100% - 480px) / 2) + min(33.3vw, 130px));   /* entra até perto do centro, por trás do conteúdo */
     background-size:10px 10px;
+    opacity:.75;   /* 25% mais transparente */
   }
   .bg-ht.r{right:0;
     -webkit-mask-image:radial-gradient(ellipse 100% 50% at 100% 50%, #000 0%, transparent 100%);
@@ -70,10 +71,10 @@
   }
   .bg-ht.g{background-image:radial-gradient(circle, var(--peri-neon) 0 34%, transparent 37%)}
   .bg-ht.v{background-image:radial-gradient(circle, var(--gold-neon) 0 34%, transparent 37%)}
-  .bg-ht.a{top:-8%;height:40%}
+  .bg-ht.a{top:0;height:19%}   /* ao lado do topo */
   .bg-ht.b{top:20%;height:38%}
-  .bg-ht.c{top:48%;height:28%}   /* seção do Pedro, à esquerda */
-  .bg-ht.d{top:69%;height:31%}   /* seção do Kelvyn, à direita */
+  .bg-ht.c{top:53%;height:15%}   /* ao lado da seção do Pedro, à esquerda */
+  .bg-ht.d{top:71.5%;height:15%}   /* ao lado da seção do Kelvyn, à direita */
   body{overflow-x:hidden}
 
   .page{
@@ -354,7 +355,7 @@
   card.insertBefore(cv, card.firstChild);
   var ctx=cv.getContext('2d'); if(!ctx) return;
   var A=[243,100,83], B=[37,100,63];          /* lavanda #ACA8FF e ouro #FFB742 em HSL */
-  var S=7.4, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.54, GROW=1.0;   /* +10% */     /* grade mais aberta, pontos menores; SPEED: ritmo */
+  var S=7.4, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.31, GROW=1.0;   /* ritmo: 15% mais lento que 1.54 */
   /* manchas: [x, y, raioX, raioY, força, amplitudeX, amplitudeY, velocidade, fase] */
   var blobA=[[.02,.04,.30,.14,1.1,.12,.07,.21,0],[.03,.96,.24,.13,1.05,.14,.06,.17,2],
              [.45,0,.09,.08,.85,.18,.05,.26,4],[0,.5,.06,.18,.75,.04,.18,.19,1]];
@@ -373,7 +374,7 @@
       dx=(x-cx)/(o[2]*GROW), dy=(y-cy)/(o[3]*GROW); f+=o[4]*Math.exp(-(dx*dx+dy*dy));}   /* GROW: manchas maiores */
     /* fios: faixas mais densas e mais ralas dentro da nuvem */
     var wisp=.72+.28*Math.sin(ox*9+oy*14-t*.9)*Math.sin(ox*5-oy*7+t*.5);
-    return f*wisp*1.33;
+    return f*wisp*1.16;
   }
   function color(base,x,y,t){                 /* iridescência: matiz ±36°, luz ±8% */
     var w=Math.sin(x*.045+y*.028+t*.5)*.65+Math.sin(x*.013-y*.051+1.7-t*.3)*.35;
@@ -381,7 +382,7 @@
   }
   function alpha(x,y,f,t){                    /* fumaça: núcleo mais visível, bordas que se desfazem */
     var w=.5+.5*Math.sin(x*.021-y*.034+.8+t*.35)*Math.cos(x*.009+y*.017-t*.2);
-    return Math.max(.45,Math.min(.9,.45+.45*Math.min(f,1)*(.65+.35*w)));   /* força entre 45% e 90% */
+    return Math.max(.45,Math.min(.95,.45+.5*Math.min(f,1)*(.65+.35*w)));   /* força entre 45% e 95% */
   }
 
   function layout(){
@@ -426,7 +427,7 @@
       var lit=g>f; if(lit) f=g;
       var r=RMAX*Math.sqrt(Math.min(f,1));
       if(r<.35) continue;
-      var al=alpha(x,y,f,t), a=.15+(al-.15)*pts[k+2];   /* perto do texto vai enfraquecendo até 15% */
+      var al=alpha(x,y,f,t), a=.2+(al-.2)*pts[k+2];   /* perto do texto vai enfraquecendo até 20% */
       ctx.globalAlpha=a;
       ctx.fillStyle=color(lit?(gi?B:A):(fa>=fb?A:B),x,y,t);
       ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fill();
