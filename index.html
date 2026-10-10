@@ -117,7 +117,7 @@
   }
   .tagline{
     margin:13px auto 0;   /* centralizada entre título e card */
-    font-size:8px;line-height:1.5;font-weight:300;letter-spacing:.3em;   /* fina e espaçada; tamanho e espaço finais calculados pelo script */
+    font-size:8px;line-height:1.5;font-weight:400;letter-spacing:.3em;   /* fina e espaçada; tamanho e espaço finais calculados pelo script */
     white-space:nowrap;            /* frase sempre em uma linha */
     color:var(--ink);
   }
@@ -370,7 +370,7 @@
   card.insertBefore(cv, card.firstChild);
   var ctx=cv.getContext('2d'); if(!ctx) return;
   var A=[243,100,83], B=[37,100,63];          /* lavanda #ACA8FF e ouro #FFB742 em HSL */
-  var S=6.2, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.7, GROW=0.9;   /* ritmo da animação do card */
+  var S=6.2, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.39, GROW=0.9;   /* ritmo da animação do card */
   /* a fumaça aparece em duplas, sempre em lados opostos; quando uma dupla começa
      a sumir, a próxima surge em outra posição. Cada dupla: [[x,y],[x,y]] */
   var PAIRS=[[[.05,.06],[.95,.94]],[[.95,.06],[.05,.94]],[[.5,.02],[.5,.98]],[[.02,.5],[.98,.5]]];
@@ -416,11 +416,15 @@
     W=c.width; H=c.height; dpr=Math.min(window.devicePixelRatio||1,2);
     cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
     cv.style.width=W+'px'; cv.style.height=H+'px';
-    var rg=document.createRange(), title=[]; rg.selectNodeContents(card.querySelector('h2'));
-    [].forEach.call(rg.getClientRects(),function(r){title.push([r.left-c.left,r.top-c.top,r.right-c.left,r.bottom-c.top]);});
-    var fd=card.querySelector('.feature-desc'); if(fd){var rd=document.createRange(); rd.selectNodeContents(fd); [].forEach.call(rd.getClientRects(),function(r){title.push([r.left-c.left,r.top-c.top,r.right-c.left,r.bottom-c.top]);});}
-    /* perto do título a fumaça se dissolve aos poucos (sem corte reto) */
-    function fade(x,y){var m=1e9;for(var i=0;i<title.length;i++){var b=title[i],qx=Math.max(b[0],Math.min(x,b[2])),qy=Math.max(b[1],Math.min(y,b[3]));m=Math.min(m,Math.hypot(x-qx,y-qy));}
+    /* áreas de texto, cada uma com o seu limite de força:
+       "IMPRESSÃO" (branco) 50% · "DTF TÊXTIL" (lavanda) 40% · frase do card 20% */
+    function rectsOf(node){var out=[],rg=document.createRange();if(node.nodeType===3)rg.setStart(node,0),rg.setEnd(node,node.nodeValue.length);else rg.selectNodeContents(node);
+      [].forEach.call(rg.getClientRects(),function(r){out.push([r.left-c.left,r.top-c.top,r.right-c.left,r.bottom-c.top]);});return out;}
+    var h2=card.querySelector('h2'), lav=h2.querySelector('span'), white=[], purple=lav?rectsOf(lav):[], desc=[];
+    [].forEach.call(h2.childNodes,function(n){if(n.nodeType===3&&n.nodeValue.trim()) white=white.concat(rectsOf(n));});
+    var fd=card.querySelector('.feature-desc'); if(fd) desc=rectsOf(fd);
+    /* perto do texto a fumaça se dissolve aos poucos até o limite (sem corte reto) */
+    function fadeTo(list,x,y){var m=1e9;for(var i=0;i<list.length;i++){var b=list[i],qx=Math.max(b[0],Math.min(x,b[2])),qy=Math.max(b[1],Math.min(y,b[3]));m=Math.min(m,Math.hypot(x-qx,y-qy));}
       m=Math.max(0,Math.min(1,(m-8)/26)); return m*m*(3-2*m);}
     /* botões: a área livre acompanha a borda arredondada (assim os cantos não ficam com vão maior) */
     /* (lado esquerdo e direito podem ter arredondamentos diferentes) */
@@ -433,14 +437,14 @@
     for(var i=-n;i<=n;i++)for(var j=-n;j<=n;j++){
       var x=W/2+(i*ca-j*sa)*S, y=H/2+(i*sa+j*ca)*S;
       if(x<-RMAX||y<-RMAX||x>W+RMAX||y>H+RMAX||hits(x,y)) continue;
-      pts.push(x,y,fade(x,y));
+      pts.push(x,y,fadeTo(white,x,y),fadeTo(purple,x,y),fadeTo(desc,x,y));
     }
   }
   /* jogo de luzes: um clarão em cada ponto da dupla ativa, no auge dela */
   function frame(t){
     var act=active(t);
     ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
-    for(var k=0;k<pts.length;k+=3){
+    for(var k=0;k<pts.length;k+=5){
       var x=pts[k], y=pts[k+1], nx=x/W, ny=y/H;
       var fa=field(act,0,nx,ny,t), fb=field(act,1,nx,ny,t), f=Math.max(fa,fb), g=0, gi=0;
       for(var q=0;q<act.length;q++){ var F=act[q], fp=(F[5]-.3)/.4; if(fp<=0||fp>=1) continue;
@@ -451,7 +455,7 @@
       var lit=g>f; if(lit) f=g;
       var r=RMAX*Math.sqrt(Math.min(f,1));
       if(r<.35) continue;
-      var al=alpha(x,y,f,t), a=.2+(al-.2)*pts[k+2];   /* perto do texto vai enfraquecendo até 20% */
+      var al=alpha(x,y,f,t), a=Math.min(.5+(al-.5)*pts[k+2], .4+(al-.4)*pts[k+3], .2+(al-.2)*pts[k+4]);   /* limites: 50% / 40% / 20% */
       ctx.globalAlpha=a;
       ctx.fillStyle=color(lit?(gi?B:A):(fa>=fb?A:B),x,y,t);
       ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fill();
