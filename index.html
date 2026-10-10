@@ -116,8 +116,8 @@
     padding:2px .16em 0;
   }
   .tagline{
-    margin:18px auto 0;
-    font-size:clamp(10px, 3vw, 14px);line-height:1.5;font-weight:700;letter-spacing:.06em;
+    margin:13px auto 0;   /* centralizada entre título e card */
+    font-size:8px;line-height:1.5;font-weight:300;letter-spacing:.3em;   /* fina e espaçada; tamanho e espaço finais calculados pelo script */
     white-space:nowrap;            /* frase sempre em uma linha */
     color:var(--ink);
   }
@@ -129,7 +129,7 @@
   /* destaque */
   .feature{
     position:relative;z-index:1;
-    margin-top:18px;
+    margin-top:13px;   /* centralizada entre título e card */
     margin-right:-4px;        /* vai até onde termina a sombra de 4px dos botões do Pedro e do Kelvyn */
     margin-left:-2px;         /* e começa onde começa o contorno de 2px das fotos deles */
     padding:20px 20px 24px;  /* topo das maiúsculas fica a 24px da borda, igual à base */
@@ -153,22 +153,25 @@
     color:#FFFFFF;
   }
   .feature h2 span{color:#9CAEF2}
-  .feature h2::after{content:"";display:block;width:36px;height:3px;margin:6px auto 0;background:#FFFFFF}   /* traço igual ao das outras seções, em branco sobre o card escuro */
-  .feature .feature-desc{margin:-6px 0 14px;font-size:min(15px, 3.6cqi);line-height:1.4;color:#FFFFFF;white-space:nowrap}   /* branco sobre #0B0B12: 19,61 */
+  .feature h2::after{content:"";display:block;width:36px;height:2.1px;margin:7.17px auto 0;background:#FFFFFF}   /* traço branco, mesma espessura dos sublinhados, centralizado entre título e frase */
+  .feature .feature-desc{margin:-7.14px 0 14px;font-size:min(15px, 3.6cqi);line-height:1.4;color:#FFFFFF;white-space:nowrap}   /* branco sobre #0B0B12: 19,61 */
 
   /* seções */
   section.block{position:relative;z-index:1;margin-top:40px;container-type:inline-size}
   section.block h2{
     font-family:var(--display);font-weight:400;
     font-size:30px;line-height:1.05;color:var(--ink);
+    display:block;width:fit-content;margin:0 auto;   /* largura do texto: o sublinhado acompanha o título */
   }
   section.block h2::after{
-    content:"";display:block;width:36px;height:3px;margin:6px auto 0;
+    content:"";display:block;width:calc(100% - 9.4px);height:2.1px;margin:-0.8px auto 0;   /* sublinhado a 2,5px das letras, centralizado */
     background:var(--gold-neon);
   }
+  #t-roupas::after{width:284px}     /* DESENVOLVA SUA COLEÇÃO */
+  #t-camisas::after{width:290px}    /* CAMISAS PERSONALIZADAS */
   section.block.alt h2::after{background:var(--peri-neon)}
   section.block p{
-    margin:6px auto 10px;
+    margin:5px auto 8px;
     font-size:min(15px, 3.4cqi);line-height:1.5;color:var(--ink);   /* acompanha a largura da seção (na Urbanist a frase mede ~28,5× a fonte) */
     white-space:nowrap;            /* descrições em uma linha */
   }
@@ -270,13 +273,12 @@
     <span class="kicker">WHITE LABEL · CONFECÇÃO · DTF TÊXTIL</span>
     <h1>DTF <span class="mark">PERSONALIZAÇÃO</span></h1>
     <p class="tagline">FABRICAMOS ROUPAS E ESTAMPAMOS SUAS IDEIAS</p>
-    <hr class="rule">
   </header>
 
   <!-- DESTAQUE -->
   <section class="feature" aria-labelledby="t-dtf">
     <h2 id="t-dtf">IMPRESSÃO <span>DTF TÊXTIL</span></h2>
-    <p class="feature-desc">Sua estampa pronta pra aplicar em qualquer tecido</p>
+    <p class="feature-desc">Sua arte pronta para aplicar em qualquer tecido</p>
     <div class="btns">
       <a class="btn btn-neon" id="brena-faca-seu-orcamento-no-whatsapp"
          href="https://api.whatsapp.com/send/?phone=5585998019368" target="_blank" rel="noopener">
@@ -308,7 +310,7 @@
 
   <section class="block alt" aria-labelledby="t-camisas">
     <h2 id="t-camisas">CAMISAS PERSONALIZADAS</h2>
-    <p>Aplique sua arte em peças duradouras</p>
+    <p>Transformo sua ideia em estampas e peças duradouras</p>
     <div class="btns">
       <a class="btn btn-dark" id="kelvyn-faca-seu-orcamento-no-whatsapp"
          href="https://api.whatsapp.com/send/?phone=5585988458647" target="_blank" rel="noopener">
@@ -368,7 +370,7 @@
   card.insertBefore(cv, card.firstChild);
   var ctx=cv.getContext('2d'); if(!ctx) return;
   var A=[243,100,83], B=[37,100,63];          /* lavanda #ACA8FF e ouro #FFB742 em HSL */
-  var S=6.2, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.31, GROW=0.9;   /* ritmo: 15% mais lento que 1.54 */
+  var S=6.2, RMAX=1.7, ANG=18*Math.PI/180, SPEED=1.7, GROW=0.9;   /* ritmo da animação do card */
   /* a fumaça aparece em duplas, sempre em lados opostos; quando uma dupla começa
      a sumir, a próxima surge em outra posição. Cada dupla: [[x,y],[x,y]] */
   var PAIRS=[[[.05,.06],[.95,.94]],[[.95,.06],[.05,.94]],[[.5,.02],[.5,.98]],[[.02,.5],[.98,.5]]];
@@ -499,6 +501,52 @@
   if(ig) ig.addEventListener('click',function(){
     gtag('event','clique_instagram',{botao:'instagram',link_url:ig.href,transport_type:'beacon'});
   });
+})();
+</script><script>
+/* Sublinhados das seções: 2,5px não é um número inteiro de pixels, então a tela
+   desenha a linha conforme a posição dela. Aqui as seções seguintes ganham um
+   ajuste menor que 1px no espaçamento para que todos os sublinhados fiquem na
+   mesma posição em relação aos pixels da tela, e pareçam ter a mesma espessura. */
+(function(){
+  function align(){
+    var d=window.devicePixelRatio||1, sy=window.scrollY||0, ref=null;
+    [].forEach.call(document.querySelectorAll('section.block'),function(sec){
+      sec.style.marginTop='';
+      var h=sec.querySelector('h2'), a=getComputedStyle(h,'::after');
+      var top=(h.getBoundingClientRect().bottom-parseFloat(a.height)+sy)*d, fr=top-Math.floor(top);
+      if(ref===null){ref=fr;return;}
+      var delta=(ref-fr+1)%1; if(delta>1e-3) sec.style.marginTop=(40+delta/d).toFixed(3)+'px';
+    });
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(align,120);}
+  align(); addEventListener('resize',later); addEventListener('load',later); setTimeout(align,600);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(later);
+  /* refaz quando qualquer coisa acima mudar de altura (fontes, frases que se ajustam) */
+  if('ResizeObserver' in window){ var ro=new ResizeObserver(later); [].forEach.call(document.querySelectorAll('header,.feature,section.block p'),function(e){ro.observe(e);}); }
+})();
+</script><script>
+/* Frase do topo alinhada ao título: o centro do F fica sob o centro do D
+   de "DTF" e o centro do S final fica sob o centro do último O de "PERSONALIZAÇÃO".
+   O espaço entre as letras é calculado a partir das posições reais das letras. */
+(function(){
+  var tg=document.querySelector('.tagline'), h1=document.querySelector('h1'); if(!tg||!h1) return;
+  function centerOf(node,i){var r=document.createRange();r.setStart(node,i);r.setEnd(node,i+1);var b=r.getBoundingClientRect();return (b.left+b.right)/2;}
+  function textNodes(el){var out=[],w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);while(w.nextNode()) if(w.currentNode.nodeValue.trim()) out.push(w.currentNode);return out;}
+  function align(){
+    var hn=textNodes(h1); if(!hn.length) return;
+    var dNode=hn[0], dIdx=dNode.nodeValue.indexOf('D');
+    var last=hn[hn.length-1], oIdx=last.nodeValue.lastIndexOf('O');
+    var dX=centerOf(dNode,dIdx), oX=centerOf(last,oIdx), target=oX-dX;
+    var tn=textNodes(tg)[0], s=tn.nodeValue, fIdx=s.indexOf('F'), sIdx=s.lastIndexOf('S');
+    tg.style.fontSize=(parseFloat(getComputedStyle(h1).fontSize)*.22).toFixed(2)+'px';
+    tg.style.letterSpacing='0px'; tg.style.transform='none';
+    var d0=centerOf(tn,sIdx)-centerOf(tn,fIdx), gaps=sIdx-fIdx;
+    tg.style.letterSpacing=((target-d0)/gaps).toFixed(3)+'px';
+    var dx=dX-centerOf(tn,fIdx); tg.style.transform='translateX('+dx.toFixed(2)+'px)';
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(align,60);}
+  align(); addEventListener('resize',later); addEventListener('load',later);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(align);
 })();
 </script></body>
 </html>
