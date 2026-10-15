@@ -148,13 +148,13 @@
   .feature > *:not(.fx-svg){position:relative;z-index:1}
   .feature h2{
     font-family:var(--display);font-weight:400;
-    font-size:min(46px, 11.6cqi);line-height:1.1;margin:0 0 16px;   /* uma linha só: o título mede ~8,3× a fonte */
-    white-space:nowrap;
+    font-size:min(46px, 11.6cqi);line-height:1.1;margin:0 auto;   /* uma linha só: o título mede ~8,3× a fonte */
+    white-space:nowrap;width:fit-content;   /* o sublinhado acompanha o título, como nas seções */
     color:#FFFFFF;
   }
   .feature h2 span{color:#9CAEF2}
-  .feature h2::after{content:"";display:block;width:36px;height:2.1px;margin:7.17px auto 0;background:#FFFFFF}   /* traço branco, mesma espessura dos sublinhados, centralizado entre título e frase */
-  .feature .feature-desc{margin:-7.14px 0 14px;font-size:min(15px, 3.6cqi);line-height:1.4;color:#FFFFFF;white-space:nowrap}   /* branco sobre #0B0B12: 19,61 */
+  .feature h2::after{content:"";display:block;width:calc(100% - 5.1px);height:2.1px;margin:-2.82px auto 0;background:#FFFFFF}   /* sublinhado igual ao das seções (branco sobre o card) */
+  .feature .feature-desc{margin:5px 0 14px;font-size:min(15px, 3.6cqi);line-height:1.4;color:#FFFFFF;white-space:nowrap}   /* branco sobre #0B0B12: 19,61 */
 
   /* seções */
   section.block{position:relative;z-index:1;margin-top:40px;container-type:inline-size}
