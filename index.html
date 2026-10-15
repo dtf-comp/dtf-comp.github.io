@@ -592,18 +592,31 @@
   function iri(x,y,t){var w=Math.sin(x*.06+y*.04+t*2.2);
     return 'hsl('+((354+30*w+360)%360).toFixed(0)+',100%,'+(55+8*Math.cos(x*.05-t*1.7)).toFixed(0)+'%)';}
 
-  /* morcegos: a cada 2 s, uma dupla cruza a tela */
-  var bats=[], next=0;
+  /* morcegos: um grupo de 4 cruza a tela, cada um numa direção (horizontal, vertical ou
+     diagonal, nos dois sentidos). No máximo 4 na tela: o grupo seguinte só aparece 3 s
+     depois que o anterior saiu */
+  var bats=[], next=0, EVERY=3, GROUP=4, SPEED=80, MAXDUR=9, wasEmpty=true;   /* SPEED em px por segundo */
   function updBats(t){
-    while(t>=next){var dir=Math.random()<.5?1:-1, y0=H*(.15+Math.random()*.6);
-      for(var k=0;k<2;k++) bats.push({t0:next+k*.18,dir:dir,y:y0+k*(26+Math.random()*16),s:.8+Math.random()*.35,dur:3.6+Math.random()*1.2,ph:Math.random()*6});
-      next+=2;}
+    var empty=bats.length===0;
+    if(empty&&!wasEmpty) next=t+EVERY;                     /* o grupo acabou de sair: espera 3 s */
+    wasEmpty=empty;
+    if(empty&&t>=next){
+      for(var k=0;k<GROUP;k++){
+        var a=Math.floor(Math.random()*8)*Math.PI/4+(Math.random()-.5)*.5;   /* 8 direções, com variação */
+        var dx=Math.cos(a), dy=Math.sin(a), M=60;                            /* M: margem fora da tela */
+        var L=Math.abs(dx)*(W+2*M)+Math.abs(dy)*(H+2*M);                     /* caminho atravessando a tela */
+        var off=(Math.random()-.5)*.7, cx=W/2+(-dy)*off*W, cy=H/2+dx*off*H;   /* desvio lateral do centro */
+        bats.push({t0:next+k*.35,sx:cx-dx*L/2,sy:cy-dy*L/2,dx:dx,dy:dy,L:L,
+          s:.8+Math.random()*.35,dur:Math.min(MAXDUR,L/SPEED),ph:Math.random()*6});
+      }
+      wasEmpty=false;}
     bats=bats.filter(function(b){return t<b.t0+b.dur;});
   }
   function drawBats(t){
     bats.forEach(function(b){var p=(t-b.t0)/b.dur; if(p<0) return;
-      var x=b.dir>0?-40+(W+80)*p:W+40-(W+80)*p, y=b.y+14*Math.sin(p*9+b.ph);
-      var pose=Math.floor((t*7+b.ph)%2), fade=Math.min(1,p*6,(1-p)*6);
+      var w=14*Math.sin(p*9+b.ph);                                           /* ondulação perpendicular ao voo */
+      var x=b.sx+b.dx*b.L*p-b.dy*w, y=b.sy+b.dy*b.L*p+b.dx*w;
+      var pose=Math.floor((t*6+b.ph)%2), fade=Math.min(1,p*6,(1-p)*6);
       dots(BAT[pose],x,y,b.s,iri,.75*fade,t);});
   }
 
