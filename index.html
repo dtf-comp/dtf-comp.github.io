@@ -593,12 +593,17 @@
     return 'hsl('+((354+30*w+360)%360).toFixed(0)+',100%,'+(55+8*Math.cos(x*.05-t*1.7)).toFixed(0)+'%)';}
 
   /* morcegos: um grupo de 4 cruza a tela, cada um numa direção (horizontal, vertical ou
-     diagonal, nos dois sentidos). No máximo 4 na tela: o grupo seguinte só aparece 3 s
+     diagonal, nos dois sentidos). No máximo 4 na tela: o grupo seguinte só aparece 0,7 s
      depois que o anterior saiu */
-  var bats=[], next=0, EVERY=3, GROUP=4, SPEED=80, MAXDUR=9, wasEmpty=true;   /* SPEED em px por segundo */
+  var bats=[], next=0, EVERY=.7, GROUP=4, SPEED=80, MAXDUR=9, wasEmpty=true;   /* SPEED em px por segundo */
   function updBats(t){
-    var empty=bats.length===0;
-    if(empty&&!wasEmpty) next=t+EVERY;                     /* o grupo acabou de sair: espera 3 s */
+    /* "vazio" = nenhum morcego visível (os que ainda estão fora da tela não contam) */
+    var empty=!bats.some(function(b){var p=(t-b.t0)/b.dur; if(p<0) return true;
+      var x=b.sx+b.dx*b.L*p, y=b.sy+b.dy*b.L*p, vis=x>-40&&x<W+40&&y>-25&&y<H+25;
+      if(vis) b.seen=true; return vis||!b.seen;});        /* ainda entrando também conta como presente */
+    /* o grupo acabou de sair: o próximo aparece 0,7 s depois (descontando o tempo
+       que ele leva para entrar pela borda, ~60px a SPEED) */
+    if(empty&&!wasEmpty) next=t+Math.max(0,EVERY-60/SPEED);
     wasEmpty=empty;
     if(empty&&t>=next){
       for(var k=0;k<GROUP;k++){
